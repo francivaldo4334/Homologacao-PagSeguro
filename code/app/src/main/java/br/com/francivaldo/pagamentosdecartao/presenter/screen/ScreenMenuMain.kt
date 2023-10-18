@@ -66,11 +66,11 @@ fun ScreenMenuMain() {
                     context.startActivity(Intent(context,CreditCardActivity::class.java))
                 }
             }
-            item {
-                itemButton("Debito"){
-                    context.startActivity(Intent(context,DebitCreditActivity::class.java))
-                }
-            }
+//            item {
+//                itemButton("Debito"){
+//                    context.startActivity(Intent(context,DebitCreditActivity::class.java))
+//                }
+//            }
             item {
                 itemButton("Historico"){
                     context.startActivity(Intent(context,HistoricoActivity::class.java))

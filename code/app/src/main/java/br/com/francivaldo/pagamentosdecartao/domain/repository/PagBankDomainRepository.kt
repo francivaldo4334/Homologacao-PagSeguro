@@ -1,23 +1,20 @@
 package br.com.francivaldo.pagamentosdecartao.domain.repository
 
 import android.util.Log
-import androidx.room.util.joinIntoString
 import br.com.confchat.mobile.data.database.repository.contract.IPaymentRepository
-import br.com.confchat.mobile.data.network.dto.pagbank.Amount
 import br.com.confchat.mobile.data.network.dto.pagbank.Card
-import br.com.confchat.mobile.data.network.dto.pagbank.Charge
-import br.com.confchat.mobile.data.network.dto.pagbank.CreateOrderDto
-import br.com.confchat.mobile.data.network.dto.pagbank.Customer
-import br.com.confchat.mobile.data.network.dto.pagbank.Holder
 import br.com.confchat.mobile.data.network.dto.pagbank.Item
 import br.com.confchat.mobile.data.network.dto.pagbank.PaymentMethod
 import br.com.confchat.mobile.data.network.repository.pagbank.IApiPagBankRepository
 import br.com.francivaldo.pagamentosdecartao.data.database.model.Payment
 import br.com.francivaldo.pagamentosdecartao.data.network.model.pagbank.AmountXX
+import br.com.francivaldo.pagamentosdecartao.data.network.model.pagbank.AuthenticationMethod
 import br.com.francivaldo.pagamentosdecartao.data.network.model.pagbank.CardXX
 import br.com.francivaldo.pagamentosdecartao.data.network.model.pagbank.CreditCardPay
+import br.com.francivaldo.pagamentosdecartao.data.network.model.pagbank.DebitCardPay
 import br.com.francivaldo.pagamentosdecartao.data.network.model.pagbank.HolderXX
 import br.com.francivaldo.pagamentosdecartao.data.network.model.pagbank.MetadataX
+import br.com.francivaldo.pagamentosdecartao.data.network.model.pagbank.PaymentMethodDebit
 import br.com.francivaldo.pagamentosdecartao.data.network.model.pagbank.PaymentMethodXX
 import br.com.francivaldo.pagamentosdecartao.data.network.response.pagbank.CreditCardResponse
 import br.com.francivaldo.pagamentosdecartao.data.network.response.pagbank.CreditCardResponseError
@@ -97,7 +94,7 @@ class PagBankDomainRepository constructor(private val doc: IApiPagBankRepository
                 order = ""
             )
         )
-        val dto = CreditCardPay(
+        val dto = DebitCardPay(
             amount = AmountXX(
                 currency = "BRL",
                 value = data.amont
@@ -105,7 +102,7 @@ class PagBankDomainRepository constructor(private val doc: IApiPagBankRepository
             description = "",
             metadata = MetadataX(),
             notification_urls = emptyList(),
-            payment_method = PaymentMethodXX(
+            payment_method = PaymentMethodDebit(
                 capture = false,
                 card = CardXX(
                     exp_month = expMonth,
@@ -118,12 +115,20 @@ class PagBankDomainRepository constructor(private val doc: IApiPagBankRepository
                 ),
                 installments = 1,
                 soft_descriptor = "",
-                type = "DEBIT_CARD"
+                type = "DEBIT_CARD",
+                authentication_method = AuthenticationMethod(
+                    type = "THREEDS",
+                    cavv = "BwABBylVaQAAAAFwllVpAAAAAAA=",
+                    xid = "BwABBylVaQAAAAFwllVpAAAAAAA=",
+                    eci = "05",
+                    version = "2.1.0",
+                    dstrans_id = "DIR_SERVER_TID"
+                )
             ),
             reference_id = payment.getReference(),
 
             )
-        val response = doc.creditCardPayment(dto)//TODO : obter estado do apagamento e armazenar ID
+        val response = doc.debitCardPayment(dto)//TODO : obter estado do apagamento e armazenar ID
         Log.d(this@PagBankDomainRepository::class.java.simpleName,response.toString())
         when(response){
             is CreditCardResponse ->{

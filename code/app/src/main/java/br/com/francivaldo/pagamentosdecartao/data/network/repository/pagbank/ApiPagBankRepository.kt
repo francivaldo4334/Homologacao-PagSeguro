@@ -14,6 +14,7 @@ import br.com.confchat.mobile.data.network.response.pagbank.PaymentResponse
 import br.com.confchat.mobile.data.network.response.pagbank.Summary
 import br.com.francivaldo.pagamentosdecartao.data.network.ApiaPagBankService
 import br.com.francivaldo.pagamentosdecartao.data.network.model.pagbank.CreditCardPay
+import br.com.francivaldo.pagamentosdecartao.data.network.model.pagbank.DebitCardPay
 import br.com.francivaldo.pagamentosdecartao.data.network.response.pagbank.CreateOrderError
 import br.com.francivaldo.pagamentosdecartao.data.network.response.pagbank.CreditCardResponse
 import br.com.francivaldo.pagamentosdecartao.data.network.response.pagbank.CreditCardResponseError
@@ -86,6 +87,28 @@ class ApiPagBankRepository constructor(private val api: ApiaPagBankService) :
 
     override fun creditCardPayment(dto: CreditCardPay): Any{
         val call = api.creditCardPayment(dto)
+        try {
+            val resp = call.execute()
+            if(resp.isSuccessful)
+                return resp.body()!!
+            return Gson().fromJson(resp.errorBody()?.string(),CreditCardResponseError::class.java)
+        }
+        catch (e:Exception){
+            return CreditCardResponseError(
+                buildList {
+                    add(ErrorMessageX(
+                        code = "501",
+                        description = e.message.toString(),
+                        message = e.message.toString(),
+                        parameter_name = ""
+                    ))
+                }
+            )
+        }
+    }
+
+    override fun debitCardPayment(dto: DebitCardPay): Any {
+        val call = api.debitCardPayment(dto)
         try {
             val resp = call.execute()
             if(resp.isSuccessful)
